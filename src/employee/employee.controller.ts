@@ -1,18 +1,86 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  HttpStatus,
+  Res,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { EmployeeService } from './employee.service';
+import { IEmployee } from './schemas/employee.schema';
+import { CreateNewEmployeeDto } from './dto/create-employee.dto';
 
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Get('/seed')
-  seed(): Promise<string> {
-    return this.employeeService.seed();
+  seed(@Res() res): Promise<string> {
+    try {
+      return this.employeeService.seed();
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
   }
 
   @Get()
-  findAll(): Promise<any> {
-    return this.employeeService.findAll();
+  findAll(@Res() res): Promise<IEmployee[]> {
+    try {
+      return this.employeeService.findAll();
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
+  }
+
+  @Get('/:id')
+  async find(@Param('id') id, @Res() res): Promise<IEmployee | string> {
+    try {
+      const resultEmployee = await this.employeeService.find(id);
+      if (!resultEmployee) {
+        return res
+          .status(HttpStatus.NO_CONTENT)
+          .json({ message: 'This employee does not exist or deleted' });
+      }
+      return res.status(HttpStatus.OK).json(resultEmployee);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response.message);
+    }
+  }
+
+  @Post('/')
+  create(
+    @Body() createEmployeeDto: CreateNewEmployeeDto,
+    @Res() res,
+  ): Promise<IEmployee> {
+    try {
+      return this.employeeService.create(createEmployeeDto);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response.message);
+    }
+  }
+
+  @Delete('/:id')
+  async delete(@Param('id') id, @Res() res): Promise<string> {
+    try {
+      const deletedResult = await this.employeeService.delete(id);
+      if (deletedResult) {
+        return res.status(HttpStatus.OK).json('Delete success');
+      }
+      return res
+        .status(HttpStatus.NO_CONTENT)
+        .json({ message: 'This employee does not exist or deleted' });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response.message);
+    }
   }
 }
