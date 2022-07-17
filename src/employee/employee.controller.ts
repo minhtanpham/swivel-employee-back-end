@@ -19,9 +19,12 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Get('/seed')
-  seed(@Res() res): Promise<string> {
+  async seed(@Res() res): Promise<string> {
     try {
-      return this.employeeService.seed();
+      const result = await this.employeeService.seed();
+      return res.status(HttpStatus.OK).json({
+        message: result
+      });
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
