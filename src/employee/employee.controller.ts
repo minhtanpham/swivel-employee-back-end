@@ -23,7 +23,7 @@ export class EmployeeController {
     try {
       const result = await this.employeeService.seed();
       return res.status(HttpStatus.OK).json({
-        message: result
+        message: result,
       });
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
@@ -31,9 +31,10 @@ export class EmployeeController {
   }
 
   @Get()
-  findAll(@Res() res): Promise<IEmployee[]> {
+  async findAll(@Res() res): Promise<IEmployee[]> {
     try {
-      return this.employeeService.findAll();
+      const allEmployee = await this.employeeService.findAll();
+      return res.status(HttpStatus.OK).json(allEmployee);
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
@@ -57,12 +58,15 @@ export class EmployeeController {
   }
 
   @Post('/')
-  create(
+  async create(
     @Body() createEmployeeDto: CreateNewEmployeeDto,
     @Res() res,
   ): Promise<IEmployee> {
     try {
-      return this.employeeService.create(createEmployeeDto);
+      const savedEmployee = await this.employeeService.create(
+        createEmployeeDto,
+      );
+      return res.status(HttpStatus.OK).json(savedEmployee);
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
