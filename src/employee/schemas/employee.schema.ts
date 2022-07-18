@@ -4,8 +4,10 @@ import { Document } from 'mongoose';
 export type EmployeeDocument = Employee & Document;
 
 export interface IEmployee {
+  _id?: string;
   first_name: string;
   last_name: string;
+  email: string;
   number: string;
   gender: string;
   photo?: string;
@@ -27,6 +29,9 @@ export class Employee {
 
   @Prop({ required: true })
   gender: string;
+
+  @Prop({ required: true, unique: true })
+  email: string;
 
   @Prop()
   photo: string;

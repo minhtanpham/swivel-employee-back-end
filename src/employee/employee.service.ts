@@ -56,25 +56,25 @@ export class EmployeeService {
     try {
       return this.employeeModel.find({ deleted: false }).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error?.message ?? 'Error occur');
+      throw new InternalServerErrorException(error);
     }
   }
 
-  async find(id: string): Promise<Employee | NotFoundException> {
+  async find(id: string): Promise<IEmployee> {
     try {
       const targetEmployee: IEmployee = await this.employeeModel
         .findById(id)
         .exec();
-      if (targetEmployee.deleted) {
+      if (targetEmployee?.deleted) {
         return null;
       }
-      return this.employeeModel.findById(id).exec();
+      return targetEmployee;
     } catch (error) {
-      throw new InternalServerErrorException(error?.message ?? 'Error occur');
+      throw new InternalServerErrorException(error);
     }
   }
 
-  async delete(id: string): Promise<string | NotFoundException> {
+  async delete(id: string): Promise<string> {
     try {
       const deletedEmployee = await this.employeeModel.findById(id).exec();
       if (deletedEmployee) {

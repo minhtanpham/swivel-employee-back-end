@@ -7,11 +7,12 @@ import {
   HttpStatus,
   Res,
   Delete,
+  HttpException,
   NotFoundException,
 } from '@nestjs/common';
 
 import { EmployeeService } from './employee.service';
-import { IEmployee } from './schemas/employee.schema';
+import { Employee, IEmployee } from './schemas/employee.schema';
 import { CreateNewEmployeeDto } from './dto/create-employee.dto';
 
 @Controller('employee')
@@ -19,75 +20,106 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Get('/seed')
-  async seed(@Res() res): Promise<string> {
+  async seed(): Promise<string> {
     try {
       const result = await this.employeeService.seed();
-      return res.status(HttpStatus.OK).json({
-        message: result,
-      });
+      return result;
     } catch (error) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: error,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get()
-  async findAll(@Res() res): Promise<IEmployee[]> {
+  async findAll(): Promise<IEmployee[]> {
     try {
       const allEmployee = await this.employeeService.findAll();
-      return res.status(HttpStatus.OK).json(allEmployee);
+      return allEmployee;
     } catch (error) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: error,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get('/:id')
-  async find(@Param('id') id, @Res() res): Promise<IEmployee | string> {
+  async find(@Param('id') id): Promise<IEmployee> {
     try {
       const resultEmployee = await this.employeeService.find(id);
+      console.log(resultEmployee);
       if (!resultEmployee) {
-        return res
-          .status(HttpStatus.NO_CONTENT)
-          .json({ message: 'This employee does not exist or deleted' });
+        throw new HttpException(
+          {
+            status: HttpStatus.NO_CONTENT,
+            error: { message: 'This employee does not exist or deleted' },
+          },
+          HttpStatus.NO_CONTENT,
+        );
       }
-      return res.status(HttpStatus.OK).json(resultEmployee);
+      return resultEmployee;
     } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(error.response.message);
+      console.log(error);
+      throw new HttpException(
+        {
+          status: error.response.status,
+          error: { message: error?.response?.error?.message ?? 'Error occur' },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Post('/')
   async create(
     @Body() createEmployeeDto: CreateNewEmployeeDto,
-    @Res() res,
   ): Promise<IEmployee> {
     try {
       const savedEmployee = await this.employeeService.create(
         createEmployeeDto,
       );
-      return res.status(HttpStatus.OK).json(savedEmployee);
+      return savedEmployee;
     } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(error.response.message);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: { message: error.response.message },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id, @Res() res): Promise<string> {
+  async delete(@Param('id') id): Promise<Record<string, string>> {
     try {
       const deletedResult = await this.employeeService.delete(id);
       if (deletedResult) {
-        return res.status(HttpStatus.OK).json('Delete success');
+        return { message: 'Delete success' };
       }
-      return res
-        .status(HttpStatus.NO_CONTENT)
-        .json({ message: 'This employee does not exist or deleted' });
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: { message: 'This employee does not exist or deleted' },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(error.response.message);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: { message: error.response.message },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
