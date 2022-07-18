@@ -85,18 +85,9 @@ describe('EmployeeController', () => {
     });
     it('should throw error when have wrong id', async () => {
       const dummyObjectId = '62d5c4cc21b663306ef209c5';
-      const expectedError = new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: {
-            message: `Cannot read properties of null (reading 'deleted')`,
-          },
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
       expect(async () => {
         await controller.find(dummyObjectId);
-      }).rejects.toThrow(expectedError);
+      }).rejects.toThrow();
     });
   });
   describe('visit POST /employee', () => {
