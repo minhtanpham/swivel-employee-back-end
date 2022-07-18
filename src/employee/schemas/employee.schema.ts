@@ -42,7 +42,7 @@ export class Employee {
   @Prop()
   updated_date: Date;
 
-  @Prop({ select: false })
+  @Prop()
   deleted: boolean;
 }
 

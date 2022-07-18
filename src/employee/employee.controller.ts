@@ -41,13 +41,12 @@ export class EmployeeController {
       const allEmployee = await this.employeeService.findAll();
       return allEmployee;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: error,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      const { response = 'Error! Please try again', status = 500 } = error;
+      if (response?.message) {
+        throw new HttpException(response.message, status);
+      } else {
+        throw new HttpException(response, status);
+      }
     }
   }
 
@@ -55,26 +54,20 @@ export class EmployeeController {
   async find(@Param('id') id): Promise<IEmployee> {
     try {
       const resultEmployee = await this.employeeService.find(id);
-      console.log(resultEmployee);
       if (!resultEmployee) {
         throw new HttpException(
-          {
-            status: HttpStatus.NO_CONTENT,
-            error: { message: 'This employee does not exist or deleted' },
-          },
-          HttpStatus.NO_CONTENT,
+          'This employee does not exist or deleted',
+          HttpStatus.NOT_FOUND,
         );
       }
       return resultEmployee;
     } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        {
-          status: error.response.status,
-          error: { message: error?.response?.error?.message ?? 'Error occur' },
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      const { response = 'Error! Please try again', status = 500 } = error;
+      if (response?.message) {
+        throw new HttpException(response.message, status);
+      } else {
+        throw new HttpException(response, status);
+      }
     }
   }
 
@@ -88,13 +81,12 @@ export class EmployeeController {
       );
       return savedEmployee;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: { message: error.response.message },
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      const { response = 'Error! Please try again', status = 500 } = error;
+      if (response?.message) {
+        throw new HttpException(response.message, status);
+      } else {
+        throw new HttpException(response, status);
+      }
     }
   }
 
@@ -106,20 +98,16 @@ export class EmployeeController {
         return { message: 'Delete success' };
       }
       throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: { message: 'This employee does not exist or deleted' },
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'This employee does not exist or deleted',
+        HttpStatus.NOT_FOUND,
       );
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: { message: error.response.message },
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      const { response = 'Error! Please try again', status = 500 } = error;
+      if (response?.message) {
+        throw new HttpException(response.message, status);
+      } else {
+        throw new HttpException(response, status);
+      }
     }
   }
 }

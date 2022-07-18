@@ -37,19 +37,22 @@ export class EmployeeService {
       }
       return 'Prepare data success';
     } catch (error) {
-      console.log(error);
       return error.message;
     }
   }
 
   async create(createCatDto: CreateNewEmployeeDto): Promise<Employee> {
-    const createdEmployee = new this.employeeModel({
-      ...createCatDto,
-      deleted: false,
-      created_date: new Date().toUTCString(),
-      updated_date: new Date().toUTCString(),
-    });
-    return createdEmployee.save();
+    try {
+      const createdEmployee = new this.employeeModel({
+        ...createCatDto,
+        deleted: false,
+        created_date: new Date().toUTCString(),
+        updated_date: new Date().toUTCString(),
+      });
+      return createdEmployee.save();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async findAll(): Promise<Employee[]> {
@@ -65,7 +68,7 @@ export class EmployeeService {
       const targetEmployee: IEmployee = await this.employeeModel
         .findById(id)
         .exec();
-      if (targetEmployee?.deleted) {
+      if (!targetEmployee || targetEmployee?.deleted) {
         return null;
       }
       return targetEmployee;
