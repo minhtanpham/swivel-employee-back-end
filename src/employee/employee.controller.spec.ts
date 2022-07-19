@@ -1,4 +1,3 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, connect, Model } from 'mongoose';
@@ -95,7 +94,7 @@ describe('EmployeeController', () => {
       const dummyRequestBody = {
         first_name: 'Tan',
         last_name: 'Pham Minh',
-        email: 'pmtandhqn@gmail.com',
+        email: `${new Date().valueOf()}@gmail.com`,
         gender: 'M',
         number: '+84383145401',
         photo: '',

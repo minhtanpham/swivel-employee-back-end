@@ -5,15 +5,15 @@ import {
   Param,
   Post,
   HttpStatus,
-  Res,
   Delete,
   HttpException,
-  NotFoundException,
+  Put,
 } from '@nestjs/common';
 
 import { EmployeeService } from './employee.service';
-import { Employee, IEmployee } from './schemas/employee.schema';
+import { IEmployee } from './schemas/employee.schema';
 import { CreateNewEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
 @Controller('employee')
 export class EmployeeController {
@@ -80,6 +80,27 @@ export class EmployeeController {
         createEmployeeDto,
       );
       return savedEmployee;
+    } catch (error) {
+      const { response = 'Error! Please try again', status = 500 } = error;
+      if (response?.message) {
+        throw new HttpException(response.message, status);
+      } else {
+        throw new HttpException(response, status);
+      }
+    }
+  }
+
+  @Put('/:id')
+  async update(
+    @Param('id') id,
+    @Body() updateEmployeeDto: UpdateEmployeeDto,
+  ): Promise<IEmployee> {
+    try {
+      const updatedEmployee = await this.employeeService.update(
+        id,
+        updateEmployeeDto,
+      );
+      return updatedEmployee;
     } catch (error) {
       const { response = 'Error! Please try again', status = 500 } = error;
       if (response?.message) {

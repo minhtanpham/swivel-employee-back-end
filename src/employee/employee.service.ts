@@ -13,6 +13,7 @@ import {
   IEmployee,
 } from './schemas/employee.schema';
 import { CreateNewEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
 const seedFileContent = fs.readFileSync('employees.json', 'utf-8');
 const seedData = JSON.parse(seedFileContent);
@@ -72,6 +73,25 @@ export class EmployeeService {
         return null;
       }
       return targetEmployee;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async update(
+    id: string,
+    updateEmployeeDto: UpdateEmployeeDto,
+  ): Promise<Employee> {
+    try {
+      const targetEmployee = await this.employeeModel.findById(id).exec();
+      if (targetEmployee) {
+        await this.employeeModel.findByIdAndUpdate(id, {
+          ...updateEmployeeDto,
+        });
+        return this.employeeModel.findById(id).exec();
+      } else {
+        return null;
+      }
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
