@@ -87,6 +87,7 @@ export class EmployeeService {
       if (targetEmployee) {
         await this.employeeModel.findByIdAndUpdate(id, {
           ...updateEmployeeDto,
+          updated_date: new Date().toUTCString(),
         });
         return this.employeeModel.findById(id).exec();
       } else {
