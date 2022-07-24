@@ -100,6 +100,12 @@ export class EmployeeController {
         id,
         updateEmployeeDto,
       );
+      if (!updatedEmployee) {
+        throw new HttpException(
+          'This employee email already existed',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       return updatedEmployee;
     } catch (error) {
       const { response = 'Error! Please try again', status = 500 } = error;

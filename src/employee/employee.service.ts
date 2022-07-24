@@ -83,7 +83,9 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<Employee> {
     try {
-      const targetEmployee = await this.employeeModel.findById(id).exec();
+      const targetEmployee = await this.employeeModel
+        .findById({ _id: new ObjectId(id), deleted: false })
+        .exec();
       if (targetEmployee) {
         await this.employeeModel.findByIdAndUpdate(id, {
           ...updateEmployeeDto,
