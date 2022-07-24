@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import * as fs from 'fs';
 
 import {
@@ -84,7 +80,7 @@ export class EmployeeService {
   ): Promise<Employee> {
     try {
       const targetEmployee = await this.employeeModel
-        .findById({ _id: new ObjectId(id), deleted: false })
+        .findById({ _id: new mongoose.Types.ObjectId(id), deleted: false })
         .exec();
       if (targetEmployee) {
         await this.employeeModel.findByIdAndUpdate(id, {
